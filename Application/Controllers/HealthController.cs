@@ -22,11 +22,7 @@ namespace Application.Controllers
         [HttpGet("ping")]
         public ActionResult Ping()
         {
-            var model = new Model();
-
-            var modelOut = modelRepository.Create(model);
-
-            return Ok(modelOut);
+            return Ok(new { Message = "pong!" });
         }
     }
 }
