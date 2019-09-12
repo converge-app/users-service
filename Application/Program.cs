@@ -14,7 +14,6 @@ namespace Application
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args)
         {
-
             var assemblyName = typeof(Startup).GetTypeInfo().Assembly.FullName;
 
             return WebHost.CreateDefaultBuilder(args)

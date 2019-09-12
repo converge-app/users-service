@@ -24,6 +24,7 @@ namespace Application
         }
 
         private Startup _startup;
+
         public void ConfigureServices(IServiceCollection services)
         {
             _startup.ConfigureServices(services);

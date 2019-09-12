@@ -12,7 +12,6 @@ namespace Application.Utility
     {
         public static void InitializeDatabase(IServiceCollection services)
         {
-
             var databaseSettings = new DatabaseSettings();
             databaseSettings.ReadFromEnvironment();
             var config = databaseSettings.GetConfiguration();
