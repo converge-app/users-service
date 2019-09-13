@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.web.name }}
+  labels:
+    app: {{ .Values.web.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      labels:
+        app: {{ .Values.web.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.web.name }}
+    spec:
+      imagePullSecrets:
+        - gitlab-registry
+      containers:
+        - name: {{ .Values.web.name }}
+          image: {{ .Values.web.image }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: {{ .Values.web.port }}
