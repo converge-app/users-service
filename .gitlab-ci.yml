@@ -19,6 +19,7 @@ variables:
 build:
   stage: build
   script:
+    - echo ${IMAGE}
     - docker login -u gitlab-ci-token -p ${CI_BUILD_TOKEN} ${CI_REGISTRY}
     - docker pull ${IMAGE} || true
     - docker build --cache-from ${IMAGE} -t ${IMAGE} -f ./Dockerfile .
