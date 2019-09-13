@@ -18,7 +18,7 @@ namespace Application
             var assemblyName = typeof(Startup).GetTypeInfo().Assembly.FullName;
 
             return WebHost.CreateDefaultBuilder(args)
-                .UseUrls("http://0.0.0.0:5000")
+                .UseUrls("http://0.0.0.0:80")
                 .ConfigureLogging((hostingContext, logging) =>
                 {
                     logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
