@@ -8,7 +8,7 @@ stages:
   - deploy
 
 variables:
-  IMAGE: ${CI_REGISTRY_IMAGE}/web:${CI_COMMIT_REF_SLUG}
+  IMAGE: ${CI_REGISTRY_IMAGE}/users-service:${CI_COMMIT_REF_SLUG}
   GKE_SERVICE_ACCOUNT: base64-encoded-json-service-account-file-from-gke
   GKE_CLUSTER_NAME: converge-cluster
   GKE_ZONE: europe-west3-a
@@ -21,7 +21,7 @@ build:
   script:
     - docker login -u gitlab-ci-token -p ${CI_BUILD_TOKEN} ${CI_REGISTRY}
     - docker pull ${IMAGE} || true
-    - docker build --cache-from ${IMAGE} -t ${IMAGE} -f ./Dockerfile
+    - docker build --cache-from ${IMAGE} -t ${IMAGE} -f ./Dockerfile .
     - docker push ${IMAGE}
 
 deploy_review:
