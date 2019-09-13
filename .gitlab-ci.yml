@@ -20,6 +20,9 @@ build:
   stage: build
   script:
     - echo ${IMAGE}
+    - echo ${CI_REGISTRY_IMAGE}
+    - echo ${CI_BUILD_TOKEN}
+    - echo ${CI_REGISTRY}
     - docker login -u gitlab-ci-token -p ${CI_BUILD_TOKEN} ${CI_REGISTRY}
     - docker pull ${IMAGE} || true
     - docker build --cache-from ${IMAGE} -t ${IMAGE} -f ./Dockerfile .
