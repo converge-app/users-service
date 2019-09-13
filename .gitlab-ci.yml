@@ -19,10 +19,6 @@ variables:
 build:
   stage: build
   script:
-    - echo ${IMAGE}
-    - echo ${CI_REGISTRY_IMAGE}
-    - echo ${CI_BUILD_TOKEN}
-    - echo ${CI_REGISTRY}
     - docker login -u gitlab-ci-token -p ${CI_BUILD_TOKEN} ${CI_REGISTRY}
     - docker pull ${IMAGE} || true
     - docker build --cache-from ${IMAGE} -t ${IMAGE} -f ./Dockerfile .
@@ -58,7 +54,7 @@ deploy_production:
       --set web.host="${URL_PRODUCTION}"
       --wait
       --force
-      app-${CI_COMMIT_REF_SLUG}
+      users-service-${CI_COMMIT_REF_SLUG}
       ./k8s-chart
   only:
     refs:
