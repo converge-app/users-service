@@ -9,12 +9,10 @@ namespace Application.Controllers
     public class HealthController : Controller
     {
         private readonly IDatabaseContext dbContext;
-        private readonly IModelRepository modelRepository;
 
-        public HealthController(IDatabaseContext dbContext, IModelRepository modelRepository)
+        public HealthController(IDatabaseContext dbContext)
         {
             this.dbContext = dbContext;
-            this.modelRepository = modelRepository;
         }
 
         // GET api/health/ping
@@ -22,7 +20,7 @@ namespace Application.Controllers
         [HttpGet("ping")]
         public ActionResult Ping()
         {
-            return Ok(new { Message = "pong!" });
+            return Ok(new {Message = "pong!"});
         }
     }
 }

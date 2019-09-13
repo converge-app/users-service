@@ -1,15 +1,23 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
 using Application.Database;
+using Application.Helpers;
 using Application.Models;
 using Application.Repositories;
+using Application.Services;
 using Application.Utility;
+using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using OpenTracing;
 using OpenTracing.Util;
@@ -20,7 +28,6 @@ using Serilog.Sinks.Elasticsearch;
 
 namespace Application
 {
-
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -36,15 +43,16 @@ namespace Application
                 Log.Logger = new LoggerConfiguration()
                     .Enrich.FromLogContext()
                     .MinimumLevel.Debug()
-                    .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(Environment.GetEnvironmentVariable("ELASTICSEARCH_URI")))
-                    {
-                        MinimumLogEventLevel = LogEventLevel.Verbose,
+                    .WriteTo.Elasticsearch(
+                        new ElasticsearchSinkOptions(new Uri(Environment.GetEnvironmentVariable("ELASTICSEARCH_URI")))
+                        {
+                            MinimumLogEventLevel = LogEventLevel.Verbose,
                             AutoRegisterTemplate = true
-                    }).CreateLogger();
+                        }).CreateLogger();
             }
-            catch (System.Exception e)
+            catch (Exception e)
             {
-                System.Console.WriteLine(e);
+                Console.WriteLine(e);
             }
         }
 
@@ -60,9 +68,66 @@ namespace Application
                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                 });
 
+            services.AddSingleton<IDatabaseSettings, DatabaseSettings>();
+            services.AddTransient<IDatabaseContext, DatabaseContext>();
+            StartupDatabaseInitializer.InitializeDatabase(services);
+
+            services.AddAutoMapper(typeof(AutoMapperProfile));
+
+            var appSettingsSection = Configuration.GetSection("AppSettings");
+            services.Configure<AppSettings>(appSettingsSection);
+
+            var appSettings = appSettingsSection.Get<AppSettings>();
+            var key = Encoding.ASCII.GetBytes(appSettings.Secret);
+            services.AddAuthentication(x =>
+                {
+                    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(x =>
+                {
+                    x.Events = new JwtBearerEvents()
+                    {
+                        OnTokenValidated = context =>
+                        {
+                            var userRepository =
+                                context.HttpContext.RequestServices.GetRequiredService<IUserRepository>();
+                            var userId = context.Principal.Identity.Name;
+                            var user = userRepository.GetById(userId);
+                            if (user == null) context.Fail("Unauthorized");
+
+                            return Task.CompletedTask;
+                        }
+                    };
+                    x.RequireHttpsMetadata = false;
+                    x.SaveToken = true;
+                    x.TokenValidationParameters = new TokenValidationParameters()
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(key),
+                        ValidateAudience = true,
+                        ValidAudience = "auth", 
+                        ValidateIssuer = false
+                    };
+                });
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IUserService, UserService>();
+
+            AddTracing(services);
+
+
+            APIDocumentationInitializer.ApiDocumentationInitializer(services);
+
+            services.AddHealthChecks();
+
+            CorsConfig.AddCorsPolicy(services);
+        }
+
+        private static void AddTracing(IServiceCollection services)
+        {
             services.AddSingleton<ITracer>(serviceProvider =>
             {
-                string serviceName = Assembly.GetEntryAssembly().GetName().Name;
+                var serviceName = Assembly.GetEntryAssembly().GetName().Name;
 
                 Environment.SetEnvironmentVariable("JAEGER_SERVICE_NAME", serviceName);
 
@@ -76,29 +141,17 @@ namespace Application
                     GlobalTracer.Register(tracer);
                     return tracer;
                 }
-                catch (System.Exception)
+                catch (Exception)
                 {
-                    System.Console.WriteLine("Couldn't register logger");
+                    Console.WriteLine("Couldn't register logger");
                 }
 
                 return null;
-
             });
 
             // Add logging
             services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
             services.AddOpenTracing();
-
-            services.AddSingleton<IDatabaseSettings, DatabaseSettings>();
-            services.AddTransient<IDatabaseContext, DatabaseContext>();
-            services.AddScoped<IModelRepository, ModelRepository>();
-
-            APIDocumentationInitializer.ApiDocumentationInitializer(services);
-            StartupDatabaseInitializer.InitializeDatabase(services);
-
-            services.AddHealthChecks();
-
-            CorsConfig.AddCorsPolicy(services);
         }
 
         public void ConfigureDevelopmentSevices(IServiceCollection services)
@@ -111,7 +164,6 @@ namespace Application
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -126,6 +178,8 @@ namespace Application
             app.UseHealthChecks("/api/health");
             app.UseMetricServer();
             app.UseRequestMiddleware();
+
+            app.UseAuthentication();
 
             APIDocumentationInitializer.AllowAPIDocumentation(app);
             CorsConfig.AddCors(app);

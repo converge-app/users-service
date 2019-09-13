@@ -30,6 +30,7 @@ namespace Application.Models
         public string ConnectionString { get; set; }
         public string DatabaseName { get; set; }
         public MongoCredential Credentials { get; set; }
+
         public void ReadFromEnvironment()
         {
             CollectionName = Environment.GetEnvironmentVariable(_collectionName);
@@ -38,22 +39,20 @@ namespace Application.Models
             try
             {
                 Credentials = MongoCredential.CreateCredential(
-                    databaseName: "ApplicationDb",
-                    username : Environment.GetEnvironmentVariable(_mongoUsername),
-                    password : Environment.GetEnvironmentVariable(_mongoPassword));
+                    "ApplicationDb",
+                    Environment.GetEnvironmentVariable(_mongoUsername),
+                    Environment.GetEnvironmentVariable(_mongoPassword));
             }
-            catch (System.Exception)
+            catch (Exception)
             {
                 throw new EnvironmentNotSet("Mongodb credentials not given");
             }
 
-            if (String.IsNullOrEmpty(CollectionName) ||
-                String.IsNullOrEmpty(ConnectionString) ||
-                String.IsNullOrEmpty(DatabaseName) ||
+            if (string.IsNullOrEmpty(CollectionName) ||
+                string.IsNullOrEmpty(ConnectionString) ||
+                string.IsNullOrEmpty(DatabaseName) ||
                 Credentials == null)
-            {
                 throw new EnvironmentNotSet("Database variables not set");
-            }
         }
 
         public IConfiguration GetConfiguration()
@@ -69,12 +68,12 @@ namespace Application.Models
 
         public MongoClientSettings GetSettings()
         {
-            this.ReadFromEnvironment();
+            ReadFromEnvironment();
 
             return new MongoClientSettings
             {
-                Credential = this.Credentials,
-                    Server = new MongoServerAddress("localhost", 27017)
+                Credential = Credentials,
+                Server = new MongoServerAddress("localhost", 27017)
             };
         }
     }
