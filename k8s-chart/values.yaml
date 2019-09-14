@@ -2,6 +2,7 @@ web:
   port: 80
 
 mongodb:
+  enabled: true
   replicaSet:
     enabled: false
   mongodbRootPassword: password
