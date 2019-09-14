@@ -26,13 +26,13 @@ spec:
             - name: CollectionName
               value: "Users"
             - name: ConnectionString
-              value: "mongodb://localhost:27017"
+              value: "mongodb://{{ .Values.web.mongodb.serviceName }}:{{ .Values.web.mongodb.port }}"
             - name: DatabaseName
-              value: ApplicationDb
+              value: {{ .Values.mongodb.mongodbDatabase }}
             - name: MONGO_INITDB_ROOT_USERNAME
-              value: application
+              value: admin
             - name: MONGO_INITDB_ROOT_PASSWORD
-              value: password
+              value: {{ .Values.mongodb.mongodbRootPassword }}
             - name: JAEGER_AGENT_HOST
               value: localhost
             - name: JAEGER_AGENT_PORT
