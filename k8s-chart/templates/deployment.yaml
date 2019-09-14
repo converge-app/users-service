@@ -27,6 +27,8 @@ spec:
               value: "Users"
             - name: ConnectionString
               value: "mongodb://localhost:27017"
+            - name: DatabaseName
+              value: ApplicationDb
             - name: MONGO_INITDB_ROOT_USERNAME
               value: application
             - name: MONGO_INITDB_ROOT_PASSWORD
