@@ -1,2 +1,10 @@
 web:
   port: 80
+
+mongodb:
+  replicaSet:
+    enabled: false
+  mongodbRootPassword: password
+  mongodbDatabase: ApplicationDb
+  mongodbUsername: application
+  mongodbPassword: password
