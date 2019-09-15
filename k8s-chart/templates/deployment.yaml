@@ -30,7 +30,7 @@ spec:
             - name: DatabaseName
               value: {{ .Values.mongodb.mongodbDatabase }}
             - name: MONGO_SERVICE_PORT
-              value: {{ .Values.web.mongodb.port }}
+              value: "{{ .Values.web.mongodb.port }}"
             - name: MONGO_SERVICE_NAME
               value: {{ .Values.web.mongodb.serviceName }}
             - name: MONGO_INITDB_ROOT_USERNAME
