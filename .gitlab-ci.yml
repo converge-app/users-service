@@ -52,7 +52,6 @@ deploy_production:
       --set web.name="users-service-${CI_COMMIT_REF_SLUG}"
       --set web.image="${IMAGE}"
       --set web.host="${URL_PRODUCTION}"
-      --set web.mongodb.serviceName="mongodb"
       --wait
       --force
       users-service-${CI_COMMIT_REF_SLUG}
