@@ -12,9 +12,9 @@ variables:
   GKE_SERVICE_ACCOUNT: base64-encoded-json-service-account-file-from-gke
   GKE_CLUSTER_NAME: converge-cluster
   GKE_ZONE: europe-west3-a
-  GKE_PROJECT: converge-251406
-  URL_REVIEW: ${CI_COMMIT_REF_SLUG}.converge-app.net
-  URL_PRODUCTION: users-service.converge-app.net
+  GKE_PROJECT: converge-252922
+  URL_REVIEW: users-service.api.${CI_COMMIT_REF_SLUG}.converge-app.net
+  URL_PRODUCTION: users-service.api.converge-app.net
 
 build:
   stage: build
