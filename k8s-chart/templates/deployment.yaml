@@ -22,7 +22,7 @@ spec:
           imagePullPolicy: Always
           env:
             - name: ELASTICSEARCH_URI
-              value: http://localhost:9200
+              value: jaeger-elasticsearch-client:9200
             - name: CollectionName
               value: "Users"
             - name: ConnectionString
@@ -34,11 +34,11 @@ spec:
             - name: MONGO_SERVICE_NAME
               value: {{ .Values.web.mongodb.serviceName }}
             - name: MONGO_INITDB_ROOT_USERNAME
-              value: admin
+              value: {{ .Values.mongodb.mongodbUsername }}
             - name: MONGO_INITDB_ROOT_PASSWORD
               value: {{ .Values.mongodb.mongodbRootPassword }}
             - name: JAEGER_AGENT_HOST
-              value: localhost
+              value: "jaeger-agent"
             - name: JAEGER_AGENT_PORT
               value: "6831"
             - name: JAEGER_SAMPLER_TYPE
