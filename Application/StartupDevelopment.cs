@@ -20,6 +20,9 @@ namespace Application
             Environment.SetEnvironmentVariable("MONGO_INITDB_ROOT_USERNAME", "application");
             Environment.SetEnvironmentVariable("MONGO_INITDB_ROOT_PASSWORD", "password");
 
+            Environment.SetEnvironmentVariable("MONGO_SERVICE_NAME", "localhost");
+            Environment.SetEnvironmentVariable("MONGO_SERVICE_PORT", "27017");
+
             _startup = new Startup(configuration);
         }
 

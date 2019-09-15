@@ -29,6 +29,10 @@ spec:
               value: "mongodb://{{ .Values.web.mongodb.serviceName }}:{{ .Values.web.mongodb.port }}"
             - name: DatabaseName
               value: {{ .Values.mongodb.mongodbDatabase }}
+            - name: MONGO_SERVICE_PORT
+              value: {{ .Values.web.mongodb.port }}
+            - name: MONGO_SERVICE_NAME
+              value: {{ .Values.web.mongodb.serviceName }}
             - name: MONGO_INITDB_ROOT_USERNAME
               value: admin
             - name: MONGO_INITDB_ROOT_PASSWORD
@@ -54,6 +58,7 @@ spec:
               scheme: HTTP
             periodSeconds: 10
             successThreshold: 1
+            timeoutSeconds: 3
           readinessProbe:
             initialDelaySeconds: 60
             failureThreshold: 10

@@ -342,3 +342,4 @@ healthchecksdb
 MigrationBackup/
 
 .vscode
+start-mongo.sh

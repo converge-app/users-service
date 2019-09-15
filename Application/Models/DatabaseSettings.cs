@@ -10,6 +10,8 @@ namespace Application.Models
         string ConnectionString { get; set; }
         string DatabaseName { get; set; }
         MongoCredential Credentials { get; set; }
+        int MongoServicePort { get; set; }
+        string MongoServiceName { get; set; }
 
         void ReadFromEnvironment();
 
@@ -25,21 +27,30 @@ namespace Application.Models
         private const string _databaseName = "DatabaseName";
         private const string _mongoUsername = "MONGO_INITDB_ROOT_USERNAME";
         private const string _mongoPassword = "MONGO_INITDB_ROOT_PASSWORD";
+        private const string _mongoServicePort = "MONGO_SERVICE_PORT";
+        private const string _mongoServiceName = "MONGO_SERVICE_NAME";
 
         public string CollectionName { get; set; }
         public string ConnectionString { get; set; }
         public string DatabaseName { get; set; }
+        public int MongoServicePort { get; set; }
+        public string MongoServiceName { get; set; }
         public MongoCredential Credentials { get; set; }
 
         public void ReadFromEnvironment()
         {
-            CollectionName = Environment.GetEnvironmentVariable(_collectionName);
-            ConnectionString = Environment.GetEnvironmentVariable(_connectionString);
-            DatabaseName = Environment.GetEnvironmentVariable(_databaseName);
             try
             {
+                CollectionName = Environment.GetEnvironmentVariable(_collectionName);
+                ConnectionString = Environment.GetEnvironmentVariable(_connectionString);
+                DatabaseName = Environment.GetEnvironmentVariable(_databaseName);
+                MongoServiceName = Environment.GetEnvironmentVariable(_mongoServiceName);
+                if (int.TryParse(Environment.GetEnvironmentVariable(_mongoServicePort), out int dbPort))
+                    MongoServicePort = dbPort;
+                else
+                    throw new EnvironmentNotSet("DatabasePort not set");
                 Credentials = MongoCredential.CreateCredential(
-                    "ApplicationDb",
+                    DatabaseName,
                     Environment.GetEnvironmentVariable(_mongoUsername),
                     Environment.GetEnvironmentVariable(_mongoPassword));
             }
@@ -54,6 +65,7 @@ namespace Application.Models
                 Credentials == null)
                 throw new EnvironmentNotSet("Database variables not set");
         }
+
 
         public IConfiguration GetConfiguration()
         {
@@ -73,7 +85,7 @@ namespace Application.Models
             return new MongoClientSettings
             {
                 Credential = Credentials,
-                Server = new MongoServerAddress("localhost", 27017)
+                Server = new MongoServerAddress(MongoServiceName, MongoServicePort)
             };
         }
     }
