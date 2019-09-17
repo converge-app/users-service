@@ -47,7 +47,7 @@ namespace Application
                         new ElasticsearchSinkOptions(new Uri(Environment.GetEnvironmentVariable("ELASTICSEARCH_URI")))
                         {
                             MinimumLogEventLevel = LogEventLevel.Verbose,
-                            AutoRegisterTemplate = true
+                                AutoRegisterTemplate = true
                         }).CreateLogger();
             }
             catch (Exception e)
@@ -106,15 +106,14 @@ namespace Application
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(key),
                         ValidateAudience = true,
-                        ValidAudience = "auth", 
+                        ValidAudience = "auth",
                         ValidateIssuer = false
                     };
                 });
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserService, UserService>();
 
-            AddTracing(services);
-
+            //AddTracing(services);
 
             APIDocumentationInitializer.ApiDocumentationInitializer(services);
 
