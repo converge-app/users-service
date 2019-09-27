@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.Mime;
 using System.Security.Claims;
 using System.Text;
 using Application.Helpers;
@@ -17,7 +18,6 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Application.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
@@ -35,7 +35,6 @@ namespace Application.Controllers
             _appSettings = appSettings.Value;
         }
 
-        [AllowAnonymous]
         [HttpPost("authenticate")]
         public IActionResult Authenticate([FromBody] UserAuthenticationDto userDto)
         {
@@ -67,7 +66,6 @@ namespace Application.Controllers
             });
         }
 
-        [AllowAnonymous]
         [HttpPost("register")]
         public IActionResult Register([FromBody] UserRegistrationDto userDto)
         {

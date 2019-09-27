@@ -61,6 +61,8 @@ namespace Application
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            
+            CorsConfig.AddCorsPolicy(services);
             // Set compability mode for mvc
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
                 .AddJsonOptions(options =>
@@ -119,7 +121,6 @@ namespace Application
 
             services.AddHealthChecks();
 
-            CorsConfig.AddCorsPolicy(services);
         }
 
         private static void AddTracing(IServiceCollection services)
@@ -174,6 +175,7 @@ namespace Application
                 app.UseHttpsRedirection();
             }
 
+            CorsConfig.AddCors(app);
             app.UseHealthChecks("/api/health");
             app.UseMetricServer();
             app.UseRequestMiddleware();
@@ -181,7 +183,6 @@ namespace Application
             app.UseAuthentication();
 
             APIDocumentationInitializer.AllowAPIDocumentation(app);
-            CorsConfig.AddCors(app);
 
             app.UseMvc();
         }
