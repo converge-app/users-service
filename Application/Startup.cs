@@ -33,7 +33,7 @@ namespace Application
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            CreateLogger();
+            //CreateLogger();
         }
 
         public void CreateLogger()

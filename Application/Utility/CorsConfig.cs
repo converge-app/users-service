@@ -9,13 +9,13 @@ namespace Application.Utility
         {
             services.AddCors(opt =>
             {
-                opt.AddPolicy("AllowAll", p => { p.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod(); });
+                opt.AddPolicy("AllowAll", p => { p.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod().AllowCredentials(); });
             });
         }
 
         public static void AddCors(IApplicationBuilder app)
         {
-            app.UseCors(builder => builder.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
+            app.UseCors("AllowAll");
         }
     }
 }
