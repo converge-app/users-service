@@ -47,7 +47,7 @@ namespace Application
                         new ElasticsearchSinkOptions(new Uri(Environment.GetEnvironmentVariable("ELASTICSEARCH_URI")))
                         {
                             MinimumLogEventLevel = LogEventLevel.Verbose,
-                                AutoRegisterTemplate = true
+                            AutoRegisterTemplate = true
                         }).CreateLogger();
             }
             catch (Exception e)
@@ -61,7 +61,6 @@ namespace Application
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            
             CorsConfig.AddCorsPolicy(services);
             // Set compability mode for mvc
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
@@ -86,30 +85,16 @@ namespace Application
                     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                     x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 })
-                .AddJwtBearer(x =>
+                .AddJwtBearer(options =>
                 {
-                    x.Events = new JwtBearerEvents()
+                    options.TokenValidationParameters = new TokenValidationParameters()
                     {
-                        OnTokenValidated = context =>
-                        {
-                            var userRepository =
-                                context.HttpContext.RequestServices.GetRequiredService<IUserRepository>();
-                            var userId = context.Principal.Identity.Name;
-                            var user = userRepository.GetById(userId);
-                            if (user == null) context.Fail("Unauthorized");
-
-                            return Task.CompletedTask;
-                        }
-                    };
-                    x.RequireHttpsMetadata = false;
-                    x.SaveToken = true;
-                    x.TokenValidationParameters = new TokenValidationParameters()
-                    {
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(key),
+                        ValidateIssuer = false,
                         ValidateAudience = true,
+                        ValidateIssuerSigningKey = true,
                         ValidAudience = "auth",
-                        ValidateIssuer = false
+                        IssuerSigningKey =
+                            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AppSettings:Secret"]))
                     };
                 });
             services.AddScoped<IUserRepository, UserRepository>();
@@ -120,7 +105,6 @@ namespace Application
             APIDocumentationInitializer.ApiDocumentationInitializer(services);
 
             services.AddHealthChecks();
-
         }
 
         private static void AddTracing(IServiceCollection services)
@@ -179,7 +163,7 @@ namespace Application
             app.UseHealthChecks("/api/health");
             app.UseMetricServer();
             app.UseRequestMiddleware();
-
+            
             app.UseAuthentication();
 
             APIDocumentationInitializer.AllowAPIDocumentation(app);

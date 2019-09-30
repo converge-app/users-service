@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Application.Database;
 using Application.Models.Entities;
@@ -8,12 +9,12 @@ namespace Application.Repositories
     public interface IUserRepository
     {
         List<User> Get();
-        User GetById(string id);
-        User GetByUsername(string username);
+        User GetById(Guid id);
+        User GetByEmail(string email);
         User Create(User user);
-        void Update(string id, User userIn);
+        void Update(Guid id, User userIn);
         void Remove(User userIn);
-        void Remove(string id);
+        void Remove(Guid id);
     }
 
     public class UserRepository : IUserRepository
@@ -32,14 +33,14 @@ namespace Application.Repositories
             return _users.Find(user => true).ToList();
         }
 
-        public User GetById(string id)
+        public User GetById(Guid id)
         {
             return _users.Find<User>(user => user.Id == id).FirstOrDefault();
         }
 
-        public User GetByUsername(string username)
+        public User GetByEmail(string email)
         {
-            return _users.Find<User>(user => user.Email == username).FirstOrDefault();
+            return _users.Find<User>(user => user.Email == email).FirstOrDefault();
         }
 
         public User Create(User user)
@@ -48,7 +49,7 @@ namespace Application.Repositories
             return user;
         }
 
-        public void Update(string id, User userIn)
+        public void Update(Guid id, User userIn)
         {
             _users.ReplaceOne(user => user.Id == id, userIn);
         }
@@ -58,7 +59,7 @@ namespace Application.Repositories
             _users.DeleteOne(user => user.Id == userIn.Id);
         }
 
-        public void Remove(string id)
+        public void Remove(Guid id)
         {
             _users.DeleteOne(user => user.Id == id);
         }

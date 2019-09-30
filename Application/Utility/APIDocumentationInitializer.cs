@@ -11,6 +11,13 @@ namespace Application.Utility
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("Application", new Info {Title = "Application API", Version = "v1"});
+                c.AddSecurityDefinition("Bearer", new ApiKeyScheme()
+                {
+                    Description = "JWT authorization",
+                    Name = "Authorization",
+                    In = "header",
+                    Type = "apiKey"
+                });
             });
         }
 

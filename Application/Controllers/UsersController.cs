@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Net.Mime;
 using System.Security.Claims;
 using System.Text;
@@ -19,6 +20,7 @@ using Microsoft.IdentityModel.Tokens;
 namespace Application.Controllers
 {
     [Route("api/[controller]")]
+    [Authorize]
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -36,10 +38,11 @@ namespace Application.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public IActionResult CreateUser([FromBody] UserCreationDto userDto)
         {
             if (!ModelState.IsValid)
-                return BadRequest();
+                return BadRequest(new {message = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)});
 
             var createUser = _mapper.Map<User>(userDto);
             try
@@ -51,7 +54,7 @@ namespace Application.Controllers
             {
                 if (e.Message == "Email is already taken")
                     return BadRequest(new {message = "Email is already taken"});
-                return BadRequest(new {message = "Couldn't create user'"});
+                return BadRequest(new {message = e.Message});
             }
         }
         
@@ -64,15 +67,25 @@ namespace Application.Controllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById(string id)
+        [AllowAnonymous]
+        public IActionResult GetById(Guid id)
         {
             var user = _userRepository.GetById(id);
             var userDto = _mapper.Map<UserDto>(user);
             return Ok(userDto);
         }
 
+        [HttpGet("/email/{email}")]
+        [AllowAnonymous]
+        public IActionResult GetByEmail(string email)
+        {
+            var user = _userRepository.GetByEmail(email);
+            var userDto = _mapper.Map<UserDto>(user);
+            return Ok(userDto);
+        }
+
         [HttpPut("{id}")]
-        public IActionResult Update([FromRoute] string id, [FromBody] UserUpdateDto userDto)
+        public IActionResult Update([FromRoute] Guid id, [FromBody] UserUpdateDto userDto)
         {
             var user = _mapper.Map<User>(userDto);
             user.Id = id;
@@ -89,7 +102,7 @@ namespace Application.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(string id)
+        public IActionResult Delete(Guid id)
         {
             _userRepository.Remove(id);
             return Ok();

@@ -29,7 +29,7 @@ namespace Application.Services
 
         public User Create(User user)
         {
-            if (_userRepository.GetByUsername(user.Email) != null)
+            if (_userRepository.GetByEmail(user.Email) != null)
                 throw new Exception("Email is already taken");
 
             return _userRepository.Create(user);
@@ -41,7 +41,7 @@ namespace Application.Services
                        throw new ArgumentNullException("_userRepository.GetById(userParam.Id)");
 
             if (userParam.Email != user.Email)
-                if (_userRepository.GetByUsername(userParam.Email) != null)
+                if (_userRepository.GetByEmail(userParam.Email) != null)
                     throw new Exception("Email was already taken");
 
             user.FirstName = userParam.FirstName;
