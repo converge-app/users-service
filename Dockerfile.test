@@ -1,0 +1,22 @@
+FROM mcr.microsoft.com/dotnet/core/sdk:2.2-alpine AS builder
+WORKDIR /app
+
+# caches restore result by copying csproj file separately
+COPY Application/*.csproj Application/Application.csproj
+COPY ApplicationUnitTests/*.csproj ApplicationUnitTests/ApplicationUnitTests.csproj
+RUN ls
+RUN ls Application/
+RUN dotnet restore Application/Application.csproj
+RUN dotnet restore ApplicationUnitTests/ApplicationUnitTests.csproj
+
+COPY . .
+
+RUN dotnet test ApplicationUnitTests/ApplicationUnitTests.csproj 
+RUN dotnet test ApplicationUnitTests/ApplicationUnitTests.csproj \
+                 --logger 'trx;LogFileName=TestResults.trx' \
+                 --logger 'xunit;LogFileName=TestResults.xml' \
+                 --results-directory ./BuildReports/UnitTests \
+                 /p:CollectCoverage=true \
+                 /p:CoverletOutput=BuildReports/Coverage/ \
+                 /p:CoverletOutputFormat=cobertura \
+                 /p:Exclude='[xunit.*]*'

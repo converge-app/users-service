@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Application.Models.DataTransferObjects
 {
-    public class UserRegistrationDto
+    public class UserCreationDto
     {
         [Required]
         [MinLength(2, ErrorMessage = "First name has to be at least 2 characters long")]
@@ -13,14 +13,8 @@ namespace Application.Models.DataTransferObjects
         public string LastName { get; set; }
 
         [Required]
-        [MinLength(2, ErrorMessage = "Username has to be at least 2 characters long")]
+        [MinLength(2, ErrorMessage = "Email has to be at least 2 characters long")]
         [DataType(DataType.EmailAddress)]
-        public string Username { get; set; }
-
-        [Required]
-        [MinLength(8, ErrorMessage = "Password has to be at least 8 characters")]
-        [DataType(DataType.Password)]
-
-        public string Password { get; set; }
+        public string Email { get; set; }
     }
 }

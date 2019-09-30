@@ -5,6 +5,7 @@ services:
 
 stages:
   - build
+  - test
   - deploy
 
 variables:
@@ -23,6 +24,11 @@ build:
     - docker pull ${IMAGE} || true
     - docker build --cache-from ${IMAGE} -t ${IMAGE} -f ./Dockerfile .
     - docker push ${IMAGE}
+
+test:
+  stage: test
+  script:
+    - docker build -f ./Dockerfile.test .
 
 deploy_review:
   stage: deploy

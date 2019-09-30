@@ -39,7 +39,7 @@ namespace Application.Repositories
 
         public User GetByUsername(string username)
         {
-            return _users.Find<User>(user => user.Username == username).FirstOrDefault();
+            return _users.Find<User>(user => user.Email == username).FirstOrDefault();
         }
 
         public User Create(User user)

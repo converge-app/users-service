@@ -11,9 +11,7 @@ namespace Application.Helpers
             CreateMap<User, UserDto>();
             CreateMap<UserDto, User>();
             CreateMap<UserUpdateDto, User>();
-            CreateMap<UserRegistrationDto, User>();
-            CreateMap<UserAuthenticationDto, User>();
-            CreateMap<User, UserAuthenticatedDto>();
+            CreateMap<UserCreationDto, User>();
         }
     }
 }

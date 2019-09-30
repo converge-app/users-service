@@ -35,52 +35,26 @@ namespace Application.Controllers
             _appSettings = appSettings.Value;
         }
 
-        [HttpPost("authenticate")]
-        public IActionResult Authenticate([FromBody] UserAuthenticationDto userDto)
+        [HttpPost]
+        public IActionResult CreateUser([FromBody] UserCreationDto userDto)
         {
-            var user = _userService.Authenticate(userDto.Username, userDto.Password);
+            if (!ModelState.IsValid)
+                return BadRequest();
 
-            if (user == null)
-                return BadRequest(new {message = "Username or password is incorrect"});
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.Name, user.Id.ToString()),
-                }),
-                Expires = DateTime.UtcNow.AddDays(7),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
-                    SecurityAlgorithms.HmacSha256Signature),
-                Audience = "auth"
-            };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var tokenString = tokenHandler.WriteToken(token);
-
-            return Ok(new UserAuthenticatedDto()
-            {
-                Id = user.Id,
-                Token = tokenString
-            });
-        }
-
-        [HttpPost("register")]
-        public IActionResult Register([FromBody] UserRegistrationDto userDto)
-        {
-            var user = _mapper.Map<User>(userDto);
-
+            var createUser = _mapper.Map<User>(userDto);
             try
             {
-                return Ok(_userService.Create(user, userDto.Password));
+                var createdUser = _userService.Create(createUser);
+                return Ok(createdUser);
             }
             catch (Exception e)
             {
-                return BadRequest(new {Message = e.Message});
+                if (e.Message == "Email is already taken")
+                    return BadRequest(new {message = "Email is already taken"});
+                return BadRequest(new {message = "Couldn't create user'"});
             }
         }
-
+        
         [HttpGet]
         public IActionResult GetAll()
         {
@@ -105,7 +79,7 @@ namespace Application.Controllers
 
             try
             {
-                _userService.Update(user, userDto.Password);
+                _userService.Update(user);
                 return Ok();
             }
             catch (Exception e)
