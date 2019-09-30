@@ -42,7 +42,7 @@ namespace Application.Controllers
         public IActionResult CreateUser([FromBody] UserCreationDto userDto)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new {message = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)});
+                return BadRequest(new { message = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
 
             var createUser = _mapper.Map<User>(userDto);
             try
@@ -53,11 +53,11 @@ namespace Application.Controllers
             catch (Exception e)
             {
                 if (e.Message == "Email is already taken")
-                    return BadRequest(new {message = "Email is already taken"});
-                return BadRequest(new {message = e.Message});
+                    return BadRequest(new { message = "Email is already taken" });
+                return BadRequest(new { message = e.Message });
             }
         }
-        
+
         [HttpGet]
         public IActionResult GetAll()
         {
@@ -75,7 +75,7 @@ namespace Application.Controllers
             return Ok(userDto);
         }
 
-        [HttpGet("/email/{email}")]
+        [HttpGet("email/{email}")]
         [AllowAnonymous]
         public IActionResult GetByEmail(string email)
         {
@@ -97,7 +97,7 @@ namespace Application.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest(new {Message = e.Message});
+                return BadRequest(new { Message = e.Message });
             }
         }
 
