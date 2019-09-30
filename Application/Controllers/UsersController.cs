@@ -68,7 +68,7 @@ namespace Application.Controllers
 
         [HttpGet("{id}")]
         [AllowAnonymous]
-        public IActionResult GetById(Guid id)
+        public IActionResult GetById(string id)
         {
             var user = _userRepository.GetById(id);
             var userDto = _mapper.Map<UserDto>(user);
@@ -85,7 +85,7 @@ namespace Application.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update([FromRoute] Guid id, [FromBody] UserUpdateDto userDto)
+        public IActionResult Update([FromRoute] string id, [FromBody] UserUpdateDto userDto)
         {
             var user = _mapper.Map<User>(userDto);
             user.Id = id;
@@ -102,7 +102,7 @@ namespace Application.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(Guid id)
+        public IActionResult Delete(string id)
         {
             _userRepository.Remove(id);
             return Ok();

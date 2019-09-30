@@ -9,12 +9,12 @@ namespace Application.Repositories
     public interface IUserRepository
     {
         List<User> Get();
-        User GetById(Guid id);
+        User GetById(string id);
         User GetByEmail(string email);
         User Create(User user);
-        void Update(Guid id, User userIn);
+        void Update(string id, User userIn);
         void Remove(User userIn);
-        void Remove(Guid id);
+        void Remove(string id);
     }
 
     public class UserRepository : IUserRepository
@@ -33,7 +33,7 @@ namespace Application.Repositories
             return _users.Find(user => true).ToList();
         }
 
-        public User GetById(Guid id)
+        public User GetById(string id)
         {
             return _users.Find<User>(user => user.Id == id).FirstOrDefault();
         }
@@ -49,7 +49,7 @@ namespace Application.Repositories
             return user;
         }
 
-        public void Update(Guid id, User userIn)
+        public void Update(string id, User userIn)
         {
             _users.ReplaceOne(user => user.Id == id, userIn);
         }
@@ -59,7 +59,7 @@ namespace Application.Repositories
             _users.DeleteOne(user => user.Id == userIn.Id);
         }
 
-        public void Remove(Guid id)
+        public void Remove(string id)
         {
             _users.DeleteOne(user => user.Id == id);
         }
