@@ -14,7 +14,7 @@ WORKDIR /app/Application
 RUN dotnet publish -c Release -o out
 
 
-FROM mcr.microsoft.com/dotnet/core/aspnet:2.2 AS runtime
+FROM mcr.microsoft.com/dotnet/core/aspnet:2.2-alpine AS runtime
 WORKDIR /app
 COPY --from=build /app/Application/Application/out ./
 ENTRYPOINT ["dotnet", "Application.dll"]
