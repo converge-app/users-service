@@ -13,8 +13,6 @@ namespace Application.Models.DataTransferObjects
         public string LastName { get; set; }
 
         [Required]
-        [MinLength(2, ErrorMessage = "Email has to be at least 2 characters long")]
-        [DataType(DataType.EmailAddress)]
         [EmailAddress(ErrorMessage = "Invalid email address")]
         public string Email { get; set; }
     }
