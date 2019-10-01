@@ -1,30 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Application.Database;
 using Application.Helpers;
 using Application.Models;
 using Application.Repositories;
 using Application.Services;
 using Application.Utility;
+using Application.Utility.Database;
+using Application.Utility.Middleware;
+using Application.Utility.Startup;
 using AutoMapper;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
-using OpenTracing;
 using OpenTracing.Util;
 using Prometheus;
 using Serilog;
-using Serilog.Events;
-using Serilog.Sinks.Elasticsearch;
 
 namespace Application
 {
@@ -33,27 +28,7 @@ namespace Application
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            //CreateLogger();
-        }
-
-        public void CreateLogger()
-        {
-            try
-            {
-                Log.Logger = new LoggerConfiguration()
-                    .Enrich.FromLogContext()
-                    .MinimumLevel.Debug()
-                    .WriteTo.Elasticsearch(
-                        new ElasticsearchSinkOptions(new Uri(Environment.GetEnvironmentVariable("ELASTICSEARCH_URI")))
-                        {
-                            MinimumLogEventLevel = LogEventLevel.Verbose,
-                            AutoRegisterTemplate = true
-                        }).CreateLogger();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
+            Logging.CreateLogger();
         }
 
         public IConfiguration Configuration { get; }
@@ -61,7 +36,6 @@ namespace Application
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            CorsConfig.AddCorsPolicy(services);
             // Set compability mode for mvc
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
                 .AddJsonOptions(options =>
@@ -71,102 +45,37 @@ namespace Application
 
             services.AddSingleton<IDatabaseSettings, DatabaseSettings>();
             services.AddTransient<IDatabaseContext, DatabaseContext>();
-            StartupDatabaseInitializer.InitializeDatabase(services);
-
+            services.AddMongoDb();
             services.AddAutoMapper(typeof(AutoMapperProfile));
 
-            var appSettingsSection = Configuration.GetSection("AppSettings");
-            services.Configure<AppSettings>(appSettingsSection);
+            services.AddMultipleDomainSupport();
 
-            var appSettings = appSettingsSection.Get<AppSettings>();
-            var key = Encoding.ASCII.GetBytes(appSettings.Secret);
-            services.AddAuthentication(x =>
-                {
-                    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                })
-                .AddJwtBearer(options =>
-                {
-                    options.TokenValidationParameters = new TokenValidationParameters()
-                    {
-                        ValidateIssuer = false,
-                        ValidateAudience = true,
-                        ValidateIssuerSigningKey = true,
-                        ValidAudience = "auth",
-                        IssuerSigningKey =
-                            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["AppSettings:Secret"]))
-                    };
-                });
+            var appSettings = Settings.GetAppSettings(services, Configuration);
+            services.AddTokenValidation(appSettings.Secret);
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserService, UserService>();
 
-            //AddTracing(services);
-
-            APIDocumentationInitializer.ApiDocumentationInitializer(services);
+            services.AddApiDocumentation("User");
 
             services.AddHealthChecks();
         }
 
-        private static void AddTracing(IServiceCollection services)
-        {
-            services.AddSingleton<ITracer>(serviceProvider =>
-            {
-                var serviceName = Assembly.GetEntryAssembly().GetName().Name;
-
-                Environment.SetEnvironmentVariable("JAEGER_SERVICE_NAME", serviceName);
-
-                var loggerFactory = new LoggerFactory();
-                try
-                {
-                    // add agenthost and port
-                    var config = Jaeger.Configuration.FromEnv(loggerFactory);
-                    var tracer = config.GetTracer();
-
-                    GlobalTracer.Register(tracer);
-                    return tracer;
-                }
-                catch (Exception)
-                {
-                    Console.WriteLine("Couldn't register logger");
-                }
-
-                return null;
-            });
-
-            // Add logging
-            services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
-            services.AddOpenTracing();
-        }
-
-        public void ConfigureDevelopmentSevices(IServiceCollection services)
-        {
-            Environment.SetEnvironmentVariable("JAEGER_AGENT_HOST", "localhost");
-            Environment.SetEnvironmentVariable("JAEGER_AGENT_PORT", "6831");
-            Environment.SetEnvironmentVariable("JAEGER_SAMPLER_TYPE", "const");
-        }
-
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-                app.UseHttpsRedirection();
-            }
+            // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+            app.UseHsts();
+            app.UseHttpsRedirection();
 
-            CorsConfig.AddCors(app);
+            loggerFactory.AddLogging();
+
+            app.UseMultipleDomainSupport();
             app.UseHealthChecks("/api/health");
             app.UseMetricServer();
             app.UseRequestMiddleware();
-            
-            app.UseAuthentication();
 
-            APIDocumentationInitializer.AllowAPIDocumentation(app);
+            app.UseAuthentication();
+            app.UseApiDocumentation("User");
 
             app.UseMvc();
         }

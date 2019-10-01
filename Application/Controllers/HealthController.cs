@@ -1,6 +1,4 @@
 using Application.Database;
-using Application.Models;
-using Application.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Application.Controllers

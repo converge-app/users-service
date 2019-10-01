@@ -1,5 +1,3 @@
-using System;
-
 namespace Application.Models.DataTransferObjects
 {
     public class UserUpdateDto

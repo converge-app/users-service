@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Application.Database;
 using Application.Models.Entities;
@@ -20,7 +19,7 @@ namespace Application.Repositories
     public class UserRepository : IUserRepository
     {
         private readonly IDatabaseContext dbContext;
-        private IMongoCollection<User> _users;
+        private readonly IMongoCollection<User> _users;
 
         public UserRepository(IDatabaseContext dbContext)
         {
@@ -35,12 +34,12 @@ namespace Application.Repositories
 
         public User GetById(string id)
         {
-            return _users.Find<User>(user => user.Id == id).FirstOrDefault();
+            return _users.Find(user => user.Id == id).FirstOrDefault();
         }
 
         public User GetByEmail(string email)
         {
-            return _users.Find<User>(user => user.Email == email).FirstOrDefault();
+            return _users.Find(user => user.Email == email).FirstOrDefault();
         }
 
         public User Create(User user)

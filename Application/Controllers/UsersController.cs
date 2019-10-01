@@ -1,21 +1,17 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Net.Mime;
-using System.Security.Claims;
-using System.Text;
 using Application.Helpers;
 using Application.Models.DataTransferObjects;
 using Application.Models.Entities;
 using Application.Repositories;
 using Application.Services;
+using Application.Utility;
+using Application.Utility.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Application.Controllers
 {
@@ -23,9 +19,9 @@ namespace Application.Controllers
     [Authorize]
     public class UsersController : ControllerBase
     {
-        private readonly IUserService _userService;
-        private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
+        private readonly IUserRepository _userRepository;
+        private readonly IUserService _userService;
         private AppSettings _appSettings;
 
         public UsersController(IUserService userService, IUserRepository userRepository, IMapper mapper,
@@ -42,7 +38,8 @@ namespace Application.Controllers
         public IActionResult CreateUser([FromBody] UserCreationDto userDto)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new { message = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
+                return BadRequest(new
+                    {message = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)});
 
             var createUser = _mapper.Map<User>(userDto);
             try
@@ -53,8 +50,8 @@ namespace Application.Controllers
             catch (Exception e)
             {
                 if (e.Message == "Email is already taken")
-                    return BadRequest(new { message = "Email is already taken" });
-                return BadRequest(new { message = e.Message });
+                    return BadRequest(new {message = "Email is already taken"});
+                return BadRequest(new {message = e.Message});
             }
         }
 
@@ -97,7 +94,7 @@ namespace Application.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest(new { Message = e.Message });
+                return BadRequest(new {e.Message});
             }
         }
 
