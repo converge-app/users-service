@@ -56,7 +56,7 @@ namespace Application
             services.AddTracing(options =>
             {
                 options.JaegerAgentHost = Environment.GetEnvironmentVariable("JAEGER_AGENT_HOST");
-                options.ServiceName = "authentication-service";
+                options.ServiceName = "users-service";
                 options.LoggerFactory = _loggerFactory;
             });
 
