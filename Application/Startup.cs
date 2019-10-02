@@ -51,7 +51,6 @@ namespace Application
 
             var appSettings = Configuration.GetSection("AppSettings").Get<AppSettings>();
             services.AddTokenValidation(appSettings.Secret);
-            services.AddTokenValidation(appSettings.Secret);
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserService, UserService>();
             services.AddTracing(options =>
