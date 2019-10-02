@@ -39,16 +39,15 @@ namespace Application.Controllers
                 return BadRequest(new
                     {message = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)});
 
-            var createUser = _mapper.Map<User>(userDto);
             try
             {
+                var createUser = _mapper.Map<User>(userDto);
+                
                 var createdUser = _userService.Create(createUser);
                 return Ok(createdUser);
             }
             catch (Exception e)
             {
-                if (e.Message == "Email is already taken")
-                    return BadRequest(new {message = "Email is already taken"});
                 return BadRequest(new {message = e.Message});
             }
         }
@@ -82,11 +81,13 @@ namespace Application.Controllers
         [HttpPut("{id}")]
         public IActionResult Update([FromRoute] string id, [FromBody] UserUpdateDto userDto)
         {
-            var user = _mapper.Map<User>(userDto);
-            user.Id = id;
+            
 
             try
             {
+                var user = _mapper.Map<User>(userDto);
+                user.Id = id;
+                
                 _userService.Update(user);
                 return Ok();
             }
