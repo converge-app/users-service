@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Application.Helpers;
 using Application.Models.DataTransferObjects;
 using Application.Models.Entities;
 using Application.Repositories;
 using Application.Services;
-using Application.Utility;
 using Application.Utility.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;

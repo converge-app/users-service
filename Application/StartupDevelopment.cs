@@ -5,9 +5,9 @@ using Application.Repositories;
 using Application.Services;
 using Application.Utility.Database;
 using Application.Utility.Middleware;
+using Application.Utility.Models;
 using Application.Utility.Startup;
 using AutoMapper;
-using Jaeger;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -62,7 +62,7 @@ namespace Application
 
             services.AddMultipleDomainSupport();
 
-            var appSettings = Settings.GetAppSettings(services, Configuration);
+            var appSettings = Configuration.GetSection("AppSettings").Get<AppSettings>();
             services.AddTokenValidation(appSettings.Secret);
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserService, UserService>();

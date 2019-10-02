@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Reflection;
 using Application.Database;
 using Application.Helpers;
-using Application.Models;
 using Application.Repositories;
 using Application.Services;
-using Application.Utility;
 using Application.Utility.Database;
 using Application.Utility.Middleware;
+using Application.Utility.Models;
 using Application.Utility.Startup;
 using AutoMapper;
 using Microsoft.AspNetCore.Builder;
@@ -17,9 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using OpenTracing.Util;
 using Prometheus;
-using Serilog;
 
 namespace Application
 {
@@ -53,7 +49,8 @@ namespace Application
 
             services.AddMultipleDomainSupport();
 
-            var appSettings = Settings.GetAppSettings(services, Configuration);
+            var appSettings = Configuration.GetSection("AppSettings").Get<AppSettings>();
+            services.AddTokenValidation(appSettings.Secret);
             services.AddTokenValidation(appSettings.Secret);
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserService, UserService>();
@@ -62,7 +59,6 @@ namespace Application
                 options.JaegerAgentHost = Environment.GetEnvironmentVariable("JAEGER_AGENT_HOST");
                 options.ServiceName = "authentication-service";
                 options.LoggerFactory = _loggerFactory;
-
             });
 
             services.AddApiDocumentation("User");

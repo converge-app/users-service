@@ -18,8 +18,8 @@ namespace Application.Repositories
 
     public class UserRepository : IUserRepository
     {
-        private readonly IDatabaseContext dbContext;
         private readonly IMongoCollection<User> _users;
+        private readonly IDatabaseContext dbContext;
 
         public UserRepository(IDatabaseContext dbContext)
         {
