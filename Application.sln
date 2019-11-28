@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApplicationUnitTests", "App
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application.Utility", "lib\utility\Application.Utility\Application.Utility.csproj", "{74129903-05A2-4B37-A785-05FA8A8F5EB8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApplicationModulTests", "ApplicationModulTests\ApplicationModulTests.csproj", "{18A740C1-6314-4BFB-A31C-078B423C6E0A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{74129903-05A2-4B37-A785-05FA8A8F5EB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{74129903-05A2-4B37-A785-05FA8A8F5EB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{74129903-05A2-4B37-A785-05FA8A8F5EB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18A740C1-6314-4BFB-A31C-078B423C6E0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18A740C1-6314-4BFB-A31C-078B423C6E0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18A740C1-6314-4BFB-A31C-078B423C6E0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18A740C1-6314-4BFB-A31C-078B423C6E0A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
